@@ -1,0 +1,10 @@
+<h1>Hi</h1>
+
+
+<script type="text/javascript" src="/js/dependencies/sails.io.js"></script>
+
+<script type="text/javascript">
+  io.sails.url = 'http://192.168.4.196:1337';
+  io.socket.on('room', function(event){console.log(event);})
+  io.socket.get('/room', function(resData, jwres) {console.log(resData);})
+</script>
