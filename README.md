@@ -1,3 +1,3 @@
-# sails-against-react
+# auth-example
 
 a [Sails](http://sailsjs.org) application
