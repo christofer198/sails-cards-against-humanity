@@ -15,11 +15,21 @@ module.exports = {
 		User.findOne({username: username}).exec(function (err, user){
 
 			if(err){
-				console.log(user)
 				return invalidusernameOrPassword(res)
 			}
 			signInUser(req, res, password, user)
 		})
+	},
+
+	authenticate: function(req,res){
+		var responseData = {
+			user: {
+				username: req.current_user.username,
+				id: req.current_user.id
+			},
+			token: req.token
+		}
+		return ResponseService.json(200, res, "Successfully signed in", responseData)
 	}
 };
 
@@ -31,7 +41,10 @@ function signInUser(req, res, password, user) {
         return this.invalidusernameOrPassword(res);
       } else {
         var responseData = {
-          user: user,
+					user: {
+						username: user.username,
+						id: user.id
+					},
           token: generateToken(user.id)
         }
         return ResponseService.json(200, res, "Successfully signed in", responseData)

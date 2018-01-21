@@ -25,6 +25,11 @@ module.exports.policies = {
    },
 
    'AuthController': {
-     '*': true
+     '*': true,
+     'authenticate': 'isAuthorized'
+   },
+
+   'RoomController':{
+     '*':true
    }
 };
