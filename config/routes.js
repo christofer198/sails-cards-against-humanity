@@ -36,8 +36,11 @@ module.exports.routes = {
     view: 'homepage'
   },
 
-  'post /signup':'UserController.create',
-  'post /login': 'AuthController.login',  
+  'post /api/v1/signup':'UserController.create',
+  'post /api/v1/login': 'AuthController.login',
+  'get /api/v1/current_user': 'AuthController.authenticate',
+  'get /api/v1/rooms': 'RoomController.index',
+  'get /api/v1/rooms/:id': 'RoomController.show',
 
   /***************************************************************************
   *                                                                          *

@@ -9,7 +9,7 @@ var Promise = require('bluebird')
 
 module.exports = {
 
-  attributes: {
+    attributes: {
     username:{
       type: "string",
       required: true,
@@ -25,17 +25,17 @@ module.exports = {
       var obj = this.toObject()
       delete obj.password
     }
-  },
+    },
 
-  beforeCreate: function(values, cb){
+    beforeCreate: function(values, cb){
       bcrypt.hash(values.password, 10, function (err, hash) {
      if (err) return cb(err);
      values.password = hash;
      cb();
-   });
- },
+    });
+    },
 
-   comparePassword: function(password, user) {
+    comparePassword: function(password, user) {
        return new Promise(function (resolve, reject) {
      bcrypt.compare(password, user.password, function (err, match) {
        if (err) console.log(err);
@@ -46,6 +46,7 @@ module.exports = {
          reject(err);
        }
      })
-   });
-   }
+    });
+  },
+  connection: 'someMongodbServer'
 };
