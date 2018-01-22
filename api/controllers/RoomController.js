@@ -50,18 +50,21 @@ module.exports = {
 				res.status(404).json({error: "Room Not Found"})
 			}
 			//Adds user to room
-			if(room.players.filter((player) => player.userId == req.param("userId")).length == 0){
-				room.players.push({userId: req.param("userId")})
+			if(room.players.filter((player) => player.userId == req.userId).length == 0){
+				room.players.push({userId: req.userId, ready: false})
 				//Issues Cards to user
 				hand = issueHand()
-				room.currentTurn.currentHands.push({userId: req.param("userId"), hand: hand})
+				room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
+
 			} else{
 				//Retrieves Cards if user is returning
+
 			 	hand = room.currentTurn.currentHands.filter(hand => {
-					if(hand.userId == req.param){
+					if(hand.userId == req.userId){
 						return hand
 					}
 				})
+
 			}
 
 			room.save((err) => {
@@ -79,6 +82,35 @@ module.exports = {
 		// 		res.json(room)
 		// 	}
 		// })
+	},
+
+	update: function(req,res){
+
+		Room.findOne({id: req.param("roomId")}).exec(function(err, room){
+			room.players.map(player => {
+				if(player.userId == req.userId){
+					player.ready = true;
+				}
+			})
+
+			room.save(err => {
+				if(err){
+					throw err
+				}
+
+				let readyCount = 0
+				room.player.map(player => {
+					if(player.ready){
+						readyCount++
+					}
+				})
+
+				if(room.player.length > 3 && readyCount/room.player.length > 0.60){
+					res.json({roomReady: "true"})
+				}
+				res.json({roomReady: "false"})
+			})
+		})
 	}
 
 }
@@ -89,6 +121,16 @@ function issueHand(){
   let max = Math.floor(460);
 	for(i=0; i<5; i++){
 		hand.push(Math.floor(Math.random() * (max - min)) + min)
+	}
+	return hand
+}
+
+function issueBlackCard(){
+	let hand = 0
+	let min = Math.ceil(0);
+  let max = Math.floor(90);
+	for(i=0; i<1; i++){
+		hand = Math.floor(Math.random() * (max - min)) + min
 	}
 	return hand
 }

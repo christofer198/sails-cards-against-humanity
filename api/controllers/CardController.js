@@ -16,21 +16,23 @@ module.exports = {
 			})
 		} else if(req.method=="POST"){ //payload should be an array of cards
 			let userCards = req.param("cardArray")
-			Card.find().exec((err, cards) => {
-				if(err){
-					return res.serverError(err)
-				}
-
-				let cardObjects = cards[0].whiteCards.filter((card) => {
-					for(i=0; i<userCards.length; i++){
-						if(card.id==userCards[i]){
-							return card
-						}
+			if(userCards){
+				Card.find().exec((err, cards) => {
+					if(err){
+						return res.serverError(err)
 					}
-				})
 
-				res.json(cardObjects)
-			})
+					let cardObjects = cards[0].whiteCards.filter((card) => {
+						for(i=0; i<userCards.length; i++){
+							if(card.id==userCards[i]){
+								return card
+							}
+						}
+					})
+
+					res.json(cardObjects)
+				})
+			}
 		}
 	}
 }

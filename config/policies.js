@@ -33,10 +33,11 @@ module.exports.policies = {
 
    'RoomController':{
      '*':true,
-     'show':true
+     'show': 'isAuthorized',
+     'update': 'isAuthorized'
    },
 
-   CardController:{
+   'CardController':{
      '*':true,
      'index':true,
    }

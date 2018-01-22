@@ -42,6 +42,7 @@ module.exports.routes = {
   'get /api/v1/rooms': 'RoomController.index',
   'post /api/v1/rooms/create': 'RoomController.create',
   'post /api/v1/rooms/:id': 'RoomController.show',
+  'put /api/v1/rooms/update': 'RoomController.update',
   //Cards
   'get /api/v1/cards': 'CardController.index',
   'post /api/v1/cards': 'CardController.index'
