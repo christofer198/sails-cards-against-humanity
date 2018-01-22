@@ -1,6 +1,6 @@
 
 module.exports = function (req, res, next) {
-
+  console.log('policy hit')
   let token = req.headers.authorization
 
   //console.log(req.headers.authorization)
@@ -34,6 +34,7 @@ module.exports = function (req, res, next) {
     req.token = token;
     User.findOne({id: decoded.id}).then(function(user){
       req.current_user = user;
+      req.userId = user.id
       next();
     })
   });

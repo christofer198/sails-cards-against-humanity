@@ -8,19 +8,11 @@
 module.exports = {
 
   attributes: {
-    title: {
-      type: "string"
-    },
-    players:{
-      type: 'json'
-    },
-    currentTurn:{
-      type: 'json'
-    },
-    graveyard:{
-      type: 'json'
+    toJSON: function(){
+      let obj = this.toObject()
+      delete obj.currentTurn.currentHands
+      return obj
     }
-
   },
 
   connection: 'someMongodbServer'

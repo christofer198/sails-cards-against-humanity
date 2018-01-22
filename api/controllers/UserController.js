@@ -25,5 +25,32 @@ module.exports = {
 			}
 			return ResponseService.json(200, res, "USER CREATED", responseData)
 		})
+	},
+
+	show: function(req, res){
+		User.findOne({
+		  id: req.param("id")
+		}).exec(function (err, user){
+		  if (err) {
+		    return res.serverError(err);
+		  }
+		  if (!user) {
+		    return res.json({"msg" : "could not find user"});
+		  }
+		  // sails.log('Found "%s"', finn.fullName);
+		  return res.status(200).json(user);
+		});
+	},
+	index: function(req, res){
+		User.find().exec(function (err, users){
+		  if (err) {
+		    return res.serverError(err);
+		  }
+			if (!users) {
+				return res.json({"msg" : "No users exist"});
+			}
+		  // sails.log('Found "%s"', finn.fullName);
+		  return res.status(200).json(users);
+		});
 	}
 };
