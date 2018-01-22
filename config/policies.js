@@ -18,10 +18,12 @@
 
 
 module.exports.policies = {
-  '*': ['isAuthorized'],
+    '*': ['isAuthorized'],
 
    'UserController': {
-     'create': true
+     'create': true,
+     'show': true,
+     'index': true
    },
 
    'AuthController': {
@@ -30,6 +32,14 @@ module.exports.policies = {
    },
 
    'RoomController':{
-     '*':true
+     '*':true,
+     'show':true
+   },
+
+   CardController:{
+     '*':true,
+     'index':true,
    }
+
+
 };

@@ -10,21 +10,22 @@ var Promise = require('bluebird')
 module.exports = {
 
     attributes: {
-    username:{
-      type: "string",
-      required: true,
-      unique: true
-    },
-    password:{
-       minLength: 6,
-       protected: true,
-       required: true,
-       columnName: "encryptedPassword"
-    },
-    toJSON: function(){
-      var obj = this.toObject()
-      delete obj.password
-    }
+      username:{
+        type: "string",
+        required: true,
+        unique: true
+      },
+      password:{
+         minLength: 6,
+         protected: true,
+         required: true,
+         columnName: "encryptedPassword"
+      },
+      toJSON: function(){
+        var obj = this.toObject()
+        delete obj.password
+        return obj
+      }
     },
 
     beforeCreate: function(values, cb){

@@ -31,16 +31,20 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-
-  '/': {
-    view: 'homepage'
-  },
-
+  //User
   'post /api/v1/signup':'UserController.create',
+  'get /api/v1/user/:id': 'UserController.show',
+  'get /api/v1/user': 'UserController.index',
+  //AUTH
   'post /api/v1/login': 'AuthController.login',
   'get /api/v1/current_user': 'AuthController.authenticate',
+  //Rooms
   'get /api/v1/rooms': 'RoomController.index',
-  'get /api/v1/rooms/:id': 'RoomController.show',
+  'post /api/v1/rooms/create': 'RoomController.create',
+  'post /api/v1/rooms/:id': 'RoomController.show',
+  //Cards
+  'get /api/v1/cards': 'CardController.index',
+  'post /api/v1/cards': 'CardController.index'
 
   /***************************************************************************
   *                                                                          *
