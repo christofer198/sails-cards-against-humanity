@@ -40,6 +40,11 @@ module.exports.policies = {
    'CardController':{
      '*':true,
      'index':true,
+   },
+
+   'SocketController':{
+     '*':true,
+     'index':true
    }
 
 

@@ -41,6 +41,7 @@ module.exports = {
 		  return res.status(200).json(user);
 		});
 	},
+	
 	index: function(req, res){
 		User.find().exec(function (err, users){
 		  if (err) {

@@ -12,6 +12,7 @@ module.exports = {
 			if(err){
 				return res.serverError(err)
 			}
+
 			res.json(room)
 		})
 	},
@@ -50,46 +51,46 @@ module.exports = {
 				res.status(404).json({error: "Room Not Found"})
 			}
 			//Adds user to room
-			if(room.players.filter((player) => player.userId == req.userId).length == 0){
-				room.players.push({userId: req.userId, ready: false})
+			if(room.players.filter((player) => player.userId == req.userId).length === 0){
+				room.players.push({userId: req.userId, ready: false, username: req.username})
 				//Issues Cards to user
 				hand = issueHand()
 				room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
-
 			} else{
 				//Retrieves Cards if user is returning
+			 	// hand = room.currentTurn.currentHands.filter(hnd => {
+				// 	if(hand.userId == req.userId){
+				// 		return hnd
+				// 	}
+        //
+				// })
 
-			 	hand = room.currentTurn.currentHands.filter(hand => {
-					if(hand.userId == req.userId){
-						return hand
-					}
+				// console.log(room.currentTurn.currentHands)
+				hand = room.currentTurn.currentHands.find(hnd => {
+					return hnd.userId === req.userId
 				})
 
+				hand = hand.hand
 			}
 
 			room.save((err) => {
 				if(err){
 					throw err
 				}
+
 				res.json({roomData: room, hand: hand})
 			})
-
 		})
-		// Room.find({id: roomID}).exec(function(err,room){
-		// 	if(err){
-		// 		return res.json(err)
-		// 	} else if (room.length > 0) {
-		// 		res.json(room)
-		// 	}
-		// })
 	},
 
 	update: function(req,res){
 
-		Room.findOne({id: req.param("roomId")}).exec(function(err, room){
+		// console.log(req.param("roomId"))
+		Room.findOne({id: req.param("roomId")}).exec((err, room) => {
+			console.log(room.players)
 			room.players.map(player => {
 				if(player.userId == req.userId){
-					player.ready = true;
+					return player.ready = true;
 				}
 			})
 
@@ -99,16 +100,16 @@ module.exports = {
 				}
 
 				let readyCount = 0
-				room.player.map(player => {
+				room.players.map(player => {
 					if(player.ready){
 						readyCount++
 					}
 				})
 
-				if(room.player.length > 3 && readyCount/room.player.length > 0.60){
-					res.json({roomReady: "true"})
+				if(room.players.length > 2 && readyCount/room.players.length > 0.60){
+					return res.json({roomReady: "true"})
 				}
-				res.json({roomReady: "false"})
+				return res.json({roomReady: "false"})
 			})
 		})
 	}
