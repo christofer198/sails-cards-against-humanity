@@ -34,6 +34,7 @@ module.exports = function (req, res, next) {
     req.token = token;
     User.findOne({id: decoded.id}).then(function(user){
       req.current_user = user;
+      req.username = user.username
       req.userId = user.id
       next();
     })

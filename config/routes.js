@@ -34,18 +34,20 @@ module.exports.routes = {
   //User
   'post /api/v1/signup':'UserController.create',
   'get /api/v1/user/:id': 'UserController.show',
-  'get /api/v1/user': 'UserController.index',
+  'get /api/v1/users': 'UserController.index',
   //AUTH
   'post /api/v1/login': 'AuthController.login',
   'get /api/v1/current_user': 'AuthController.authenticate',
   //Rooms
   'get /api/v1/rooms': 'RoomController.index',
   'post /api/v1/rooms/create': 'RoomController.create',
-  'post /api/v1/rooms/:id': 'RoomController.show',
-  'put /api/v1/rooms/update': 'RoomController.update',
+  'post /api/v1/room/:id': 'RoomController.show',
+  'post /api/v1/rooms/update': 'RoomController.update',
   //Cards
   'get /api/v1/cards': 'CardController.index',
-  'post /api/v1/cards': 'CardController.index'
+  'post /api/v1/cards': 'CardController.index',
+  //socket
+  'get /room': 'SocketController.index'
 
   /***************************************************************************
   *                                                                          *
