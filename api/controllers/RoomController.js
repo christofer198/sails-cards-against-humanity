@@ -28,59 +28,24 @@ module.exports = {
 	create: function(req,res){
 		Room.create({
     "title" : req.param("roomName"),
-    "players" : [],
-    "currentTurn" : {
-			"userId": null,
-			"blackCard": null,
-			"pickedCards": [],
-			"currentHands":[]
-		},
-    "graveYard" : {
-			"blackCards": [],
-			"whiteCards": []
+		"roomData": {
+	    "players" : [],
+	    "currentTurn" : {
+				"userId": null,
+				"blackCard": null,
+				"pickedCards": [],
+				"currentHands":[]
+			},
+	    "graveYard" : {
+				"blackCards": [],
+				"whiteCards": []
+			}
 		}
 	}).exec(function(err, newRoom){
 			if(err){
 				return res.serverError(err)
 			}
 			res.json(newRoom)
-		})
-	},
-
-	show: function(req,res){
-		var roomID = req.param("id")
-
-		Room.findOne({id: roomID}).exec(function(err, room){
-
-			let hand;
-
-			if(err){
-				res.serverError(err)
-			} else if(room.length==0){
-				res.status(404).json({error: "Room Not Found"})
-			}
-			//Adds user to room
-			if(room.players.filter((player) => player.userId == req.userId).length === 0){
-				room.players.push({userId: req.userId, ready: false, username: req.username})
-				//Issues Cards to user
-				hand = issueHand()
-				room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
-			} else{
-
-				hand = room.currentTurn.currentHands.find(hnd => {
-					return hnd.userId === req.userId
-				})
-
-				hand = hand.hand
-			}
-
-			room.save((err) => {
-				if(err){
-					throw err
-				}
-
-				res.json({roomData: room, hand: hand})
-			})
 		})
 	},
 
@@ -99,14 +64,14 @@ module.exports = {
 					res.status(404).json({error: "Room Not Found"})
 				}
 				//Adds user to room
-				if(room.players.filter((player) => player.userId == req.userId).length === 0){
-					room.players.push({userId: req.userId, ready: false, username: req.username})
+				if(room.roomData.players.filter((player) => player.userId == req.userId).length === 0){
+					room.roomData.players.push({userId: req.userId, ready: false, username: req.username})
 					//Issues Cards to user
 					hand = issueHand()
-					room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
+					room.roomData.currentTurn.currentHands.push({userId: req.userId, hand: hand})
 				} else{
 
-					hand = room.currentTurn.currentHands.find(hnd => {
+					hand = room.roomData.currentTurn.currentHands.find(hnd => {
 						return hnd.userId === req.userId
 					})
 
@@ -117,13 +82,41 @@ module.exports = {
 					if(err){
 						throw err
 					}
-
-					res.json({roomData: room, hand: hand})
+					Room.publishUpdate(room.id, room)
+					//res.json({roomData: room, hand: hand})
 				})
 			})
 		} else{
 			return res.json({error: "Not a socket"})
 		}
+	},
+
+	submit: function(req, res){
+		Room.findOne({id: req.param("roomID")}).exec(function(err, room){
+			room.roomData = req.param("room")
+			res.ok()
+		})
+		// if(req.isSocket){
+		// 	let roomID = req.allParams()["roomID"]
+		// 	let userID = req.allParams()["roomID"]
+		// 	let pickedCards = req.allParams()["pickedCards"]
+		// 	Room.findOne({id: roomID}).exec((err, room) => {
+		// 		room.currentTurn.pickedCards.push({userId: req.userId, pickedCards:pickedCards})
+		// 		room.currentTurn.currentHands.map(userHand => {
+		// 			if(userHand.id == req.userId){
+		// 				_.pullAll(userHand.hand, pickedCards)
+		// 			}
+		// 		})
+		// 		room.save(err => {
+		// 			if(err){
+		// 				throw err
+		// 			}
+		// 			Room.publishUpdate(room.id, room)
+		// 		})
+		// 	})
+		// }else{
+		// 	res.serverError("not a socket")
+		// }
 	},
 
 	update: function(req,res){
@@ -147,7 +140,7 @@ module.exports = {
 					}
 				})
 				if(room.players.length > 2 && readyCount/room.players.length > 0.60){
-					Room.publishUpdate(room.id, room.toJSON())
+					Room.publishUpdate(room.id, room)
 				}
 			})
 		})

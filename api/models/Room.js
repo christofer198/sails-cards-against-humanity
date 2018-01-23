@@ -20,8 +20,6 @@ module.exports = {
     cb();
   },
 
-
-
   connection: 'someMongodbServer'
 };
 
