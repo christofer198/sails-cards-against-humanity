@@ -8,13 +8,22 @@
 module.exports = {
 
 	index: function(req,res){
-		Room.find().exec(function(err, room){
-			if(err){
-				return res.serverError(err)
-			}
+		if(req.isSocket) {
+			sails.sockets.join(req.socket, 'feed');
+			sails.sockets.join(req.socket, "123")
+			Room.find().exec(function(err, rooms){
+				return res.json(rooms);
+			})
+		} else{
 
-			res.json(room)
-		})
+			Room.find().exec(function(err, room){
+				if(err){
+					return res.serverError(err)
+				}
+				res.json(room)
+			})
+		}
+
 	},
 
 	create: function(req,res){
@@ -40,9 +49,10 @@ module.exports = {
 	},
 
 	show: function(req,res){
-		let roomID = req.param("id")
+		var roomID = req.param("id")
 
 		Room.findOne({id: roomID}).exec(function(err, room){
+
 			let hand;
 
 			if(err){
@@ -57,15 +67,7 @@ module.exports = {
 				hand = issueHand()
 				room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
 			} else{
-				//Retrieves Cards if user is returning
-			 	// hand = room.currentTurn.currentHands.filter(hnd => {
-				// 	if(hand.userId == req.userId){
-				// 		return hnd
-				// 	}
-        //
-				// })
 
-				// console.log(room.currentTurn.currentHands)
 				hand = room.currentTurn.currentHands.find(hnd => {
 					return hnd.userId === req.userId
 				})
@@ -85,7 +87,6 @@ module.exports = {
 
 	update: function(req,res){
 
-		// console.log(req.param("roomId"))
 		Room.findOne({id: req.param("roomId")}).exec((err, room) => {
 			console.log(room.players)
 			room.players.map(player => {

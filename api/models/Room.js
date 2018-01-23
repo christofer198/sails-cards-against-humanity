@@ -14,6 +14,11 @@ module.exports = {
       return obj
     }
   },
+  afterCreate: function(entry, cb) {
+    sails.sockets.broadcast('feed', 'new_entry', entry);
+    cb();
+  },
+
 
   connection: 'someMongodbServer'
 };

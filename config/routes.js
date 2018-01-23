@@ -46,8 +46,7 @@ module.exports.routes = {
   //Cards
   'get /api/v1/cards': 'CardController.index',
   'post /api/v1/cards': 'CardController.index',
-  //socket
-  'get /room': 'SocketController.index'
+
 
   /***************************************************************************
   *                                                                          *
