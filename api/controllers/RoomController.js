@@ -29,6 +29,7 @@ module.exports = {
 		Room.create({
     "title" : req.param("roomName"),
 		"roomData": {
+			"roomReady": false,
 	    "players" : [],
 	    "currentTurn" : {
 				"userId": null,
@@ -56,6 +57,7 @@ module.exports = {
 			Room.subscribe(req, [reqParam["roomID"]])
 
 			Room.findOne({id: reqParam["roomID"]}).exec(function(err, room){
+
 				let hand;
 
 				if(err){
@@ -120,9 +122,10 @@ module.exports = {
 	},
 
 	update: function(req,res){
+
 		Room.findOne({id: req.param("roomId")}).exec((err, room) => {
 
-			room.players.map(player => {
+			room.roomData.players.map(player => {
 				if(player.userId == req.userId){
 					return player.ready = true;
 				}
@@ -134,13 +137,18 @@ module.exports = {
 				}
 
 				let readyCount = 0
-				room.players.map(player => {
+				room.roomData.players.map(player => {
 					if(player.ready){
 						readyCount++
 					}
 				})
-				if(room.players.length > 2 && readyCount/room.players.length > 0.60){
-					Room.publishUpdate(room.id, room)
+				if(room.roomData.players.length > 2 && readyCount/room.roomData.players.length > 0.60 && !room.roomData.roomReady){
+					room.roomData.currentTurn.userId = room.roomData.players[0].userId //Change to random
+					room.roomData.roomReady = true
+					room.roomData.currentTurn.blackCard = "What am I giving up for Lent?" //Change to random
+					room.save(err => {
+						Room.publishUpdate(room.id, room)
+					})
 				}
 			})
 		})
@@ -165,5 +173,12 @@ function issueBlackCard(){
 	for(i=0; i<1; i++){
 		hand = Math.floor(Math.random() * (max - min)) + min
 	}
-	return hand
+	Card.find().exec(function(err, cards){
+		cards[0].blackCards.filter((card) => {
+			if(card.id==hand){
+				console.log(card)
+				return card
+			}
+		})
+	})
 }

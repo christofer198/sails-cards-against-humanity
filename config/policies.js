@@ -35,7 +35,8 @@ module.exports.policies = {
      '*':true,
      'show': 'isAuthorized',
      'update': 'isAuthorized',
-     'subscribe': true
+     'subscribe': 'isAuthorized',
+     'submit': true
    },
 
    'CardController':{
