@@ -10,7 +10,6 @@ module.exports = {
 	index: function(req,res){
 		if(req.isSocket) {
 			sails.sockets.join(req.socket, 'feed');
-			sails.sockets.join(req.socket, "123")
 			Room.find().exec(function(err, rooms){
 				return res.json(rooms);
 			})
@@ -85,10 +84,51 @@ module.exports = {
 		})
 	},
 
-	update: function(req,res){
+	subscribe: function(req, res){
+		if(req.isSocket){
 
+			let reqParam = req.allParams()
+			Room.subscribe(req, [reqParam["roomID"]])
+
+			Room.findOne({id: reqParam["roomID"]}).exec(function(err, room){
+				let hand;
+
+				if(err){
+					res.serverError(err)
+				} else if(room.length==0){
+					res.status(404).json({error: "Room Not Found"})
+				}
+				//Adds user to room
+				if(room.players.filter((player) => player.userId == req.userId).length === 0){
+					room.players.push({userId: req.userId, ready: false, username: req.username})
+					//Issues Cards to user
+					hand = issueHand()
+					room.currentTurn.currentHands.push({userId: req.userId, hand: hand})
+				} else{
+
+					hand = room.currentTurn.currentHands.find(hnd => {
+						return hnd.userId === req.userId
+					})
+
+					hand = hand.hand
+				}
+
+				room.save((err) => {
+					if(err){
+						throw err
+					}
+
+					res.json({roomData: room, hand: hand})
+				})
+			})
+		} else{
+			return res.json({error: "Not a socket"})
+		}
+	},
+
+	update: function(req,res){
 		Room.findOne({id: req.param("roomId")}).exec((err, room) => {
-			console.log(room.players)
+
 			room.players.map(player => {
 				if(player.userId == req.userId){
 					return player.ready = true;
@@ -106,11 +146,9 @@ module.exports = {
 						readyCount++
 					}
 				})
-
 				if(room.players.length > 2 && readyCount/room.players.length > 0.60){
-					return res.json({roomReady: "true"})
+					Room.publishUpdate(room.id, room.toJSON())
 				}
-				return res.json({roomReady: "false"})
 			})
 		})
 	}

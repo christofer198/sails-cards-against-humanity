@@ -8,16 +8,18 @@
 module.exports = {
 
   attributes: {
-    toJSON: function(){
-      let obj = this.toObject()
-      delete obj.currentTurn.currentHands
-      return obj
-    }
+    // toJSON: function(){
+    //   let obj = this.toObject()
+    //   delete obj.currentTurn.currentHands
+    //   return obj
+    // }
   },
+
   afterCreate: function(entry, cb) {
     sails.sockets.broadcast('feed', 'new_entry', entry);
     cb();
   },
+
 
 
   connection: 'someMongodbServer'

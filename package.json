@@ -10,7 +10,6 @@
     "include-all": "^1.0.0",
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
-    "nodemon": "^1.14.11",
     "rc": "1.0.1",
     "sails": "~0.12.14",
     "sails-disk": "~0.10.9",

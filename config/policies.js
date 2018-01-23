@@ -34,18 +34,13 @@ module.exports.policies = {
    'RoomController':{
      '*':true,
      'show': 'isAuthorized',
-     'update': 'isAuthorized'
+     'update': 'isAuthorized',
+     'subscribe': true
    },
 
    'CardController':{
      '*':true,
      'index':true,
    },
-
-   'SocketController':{
-     '*':true,
-     'index':true
-   }
-
 
 };
