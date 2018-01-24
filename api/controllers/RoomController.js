@@ -34,6 +34,7 @@ module.exports = {
 	    "currentTurn" : {
 				"userId": null,
 				"blackCard": null,
+				"pick": null,
 				"pickedCards": [],
 				"currentHands":[]
 			},
@@ -94,9 +95,18 @@ module.exports = {
 	},
 
 	submit: function(req, res){
-		Room.findOne({id: req.param("roomID")}).exec(function(err, room){
-			room.roomData = req.param("room")
-			res.ok()
+
+		let roomParams = req.param("room")
+		console.log(roomParams)
+		Room.findOne({id: roomParams.id}).exec(function(err, room){
+			room.roomData = roomParams.roomData
+			room.save(err => {
+				if(err){
+					throw err
+				}
+				Room.publishUpdate(roomParams.id, room)
+				res.ok()
+			})
 		})
 		// if(req.isSocket){
 		// 	let roomID = req.allParams()["roomID"]
@@ -142,12 +152,22 @@ module.exports = {
 						readyCount++
 					}
 				})
-				if(room.roomData.players.length > 2 && readyCount/room.roomData.players.length > 0.60 && !room.roomData.roomReady){
-					room.roomData.currentTurn.userId = room.roomData.players[0].userId //Change to random
+				if(room.roomData.players.length > 1 && readyCount/room.roomData.players.length > 0.60 && !room.roomData.roomReady){
+					room.roomData.currentTurn.userId = room.roomData.players[_.random(0, room.roomData.players.length-1)].userId //Change to random
 					room.roomData.roomReady = true
-					room.roomData.currentTurn.blackCard = "What am I giving up for Lent?" //Change to random
-					room.save(err => {
-						Room.publishUpdate(room.id, room)
+					Card.find().exec((err, cards) => {
+						let rand = _.random(1,89)
+						let blackCard = cards[0].blackCards.filter((card) => {			
+							if(card.id==rand){
+								return card
+							}
+						})
+						console.log(blackCard)
+						room.roomData.currentTurn.blackCard = blackCard[0].text//Change to random
+						room.roomData.currentTurn.pick = blackCard[0].pick
+						room.save(err => {
+							Room.publishUpdate(room.id, room)
+						})
 					})
 				}
 			})
@@ -164,21 +184,4 @@ function issueHand(){
 		hand.push(Math.floor(Math.random() * (max - min)) + min)
 	}
 	return hand
-}
-
-function issueBlackCard(){
-	let hand = 0
-	let min = Math.ceil(0);
-  let max = Math.floor(90);
-	for(i=0; i<1; i++){
-		hand = Math.floor(Math.random() * (max - min)) + min
-	}
-	Card.find().exec(function(err, cards){
-		cards[0].blackCards.filter((card) => {
-			if(card.id==hand){
-				console.log(card)
-				return card
-			}
-		})
-	})
 }
