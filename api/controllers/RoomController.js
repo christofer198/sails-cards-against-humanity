@@ -68,7 +68,7 @@ module.exports = {
 				}
 				//Adds user to room
 				if(room.roomData.players.filter((player) => player.userId == req.userId).length === 0){
-					room.roomData.players.push({userId: req.userId, ready: false, username: req.username})
+					room.roomData.players.push({userId: req.userId, ready: false, username: req.username, score: 0})
 					//Issues Cards to user
 					hand = issueHand()
 					room.roomData.currentTurn.currentHands.push({userId: req.userId, hand: hand})
@@ -97,15 +97,36 @@ module.exports = {
 	submit: function(req, res){
 
 		let roomParams = req.param("room")
-		console.log(roomParams)
+		//console.log(roomParams)
 		Room.findOne({id: roomParams.id}).exec(function(err, room){
 			room.roomData = roomParams.roomData
 			room.save(err => {
 				if(err){
 					throw err
 				}
-				Room.publishUpdate(roomParams.id, room)
-				res.ok()
+
+				if(req.headers.roomupdate === 'UPDATECARD'){
+					Room.publishUpdate(room.id, room)
+					res.ok()
+				} else if(req.headers.roomupdate === 'ROOMSUBMIT'){
+
+					Card.find().exec((err, cards) => {
+						let blackCard = cards[0].blackCards.filter((card) => {
+							if(card.id==roomParams.roomData.currentTurn.blackCard){
+								return card
+							}
+						})
+
+						// let blackCard = cards.blackCards[roomParams.roomData.currentTurn.blackCard]
+						roomParams.roomData.currentTurn.blackCard = blackCard[0].text//Change to random
+						roomParams.roomData.currentTurn.pick = blackCard[0].pick
+						room.roomData = roomParams.roomData
+						room.save(err => {
+							Room.publishUpdate(roomParams.id, room)
+							res.ok()
+						})
+					})
+				}
 			})
 		})
 		// if(req.isSocket){
@@ -157,7 +178,7 @@ module.exports = {
 					room.roomData.roomReady = true
 					Card.find().exec((err, cards) => {
 						let rand = _.random(1,89)
-						let blackCard = cards[0].blackCards.filter((card) => {			
+						let blackCard = cards[0].blackCards.filter((card) => {
 							if(card.id==rand){
 								return card
 							}
